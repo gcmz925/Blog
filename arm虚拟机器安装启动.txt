@@ -1,0 +1,14 @@
+https://www.cnblogs.com/cnhk19/p/17856699.html
+http://archive.kernel.org/centos-vault/altarch/7.5.1804/isos/aarch64/
+
+qemu-img create -f qcow2 D:\WorkFile\Virtual\Arm64\CentOS-7.qcow2 40G
+
+虚拟机镜像 D:\WorkFile\Virtual\Arm64\CentOS-7-aarch64-Minimal-1804.iso
+qemu D:\Program Files\qemu
+QEMU_EFI.fd D:\WorkFile\Virtual\Arm64\QEMU_EFI.fd
+虚拟机磁盘位置 D:\WorkFile\Virtual\Arm64\CentOS-7.qcow2
+
+
+qemu-system-aarch64.exe -m 4096 -cpu cortex-a72 -smp 8,sockets=4,cores=2 -M virt -bios D:\WorkFile\Virtual\Arm64\QEMU_EFI.fd -device VGA -device nec-usb-xhci -device usb-mouse -device usb-kbd -drive if=none,file=D:\WorkFile\Virtual\Arm64\CentOS-7.qcow2,id=hd0 -device virtio-blk-device,drive=hd0 -drive if=none,file=D:\WorkFile\Virtual\Arm64\CentOS-7-aarch64-Minimal-1804.iso,id=cdrom,media=cdrom -device virtio-scsi-device -device scsi-cd,drive=cdrom -net nic -net user,hostfwd=tcp::2222-:22
+
+D:\Program Files\qemu-system-aarch64.exe -m 4096 -cpu cortex-a72 -smp 8,sockets=4,cores=2 -M virt -bios D:\WorkFile\Virtual\Arm64\QEMU_EFI.fd -device VGA -device nec-usb-xhci -device usb-mouse -device usb-kbd -drive if=none,file=D:\WorkFile\Virtual\Arm64\CentOS-7.qcow2,id=hd0 -device virtio-blk-device,drive=hd0 -drive if=none,file=,id=cdrom,media=cdrom -device virtio-scsi-device -device scsi-cd,drive=cdrom -net nic -net user,hostfwd=tcp::2222-:22

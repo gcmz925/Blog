@@ -1,0 +1,5 @@
+参考：
+https://blog.csdn.net/yoogera/article/details/139117891
+
+下载地址
+https://mirrors.aliyun.com/armbian-releases/_toolchain/

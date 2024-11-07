@@ -1,0 +1,7 @@
+"D:\Windows Kits\10\Debuggers\x64\symchk.exe" -r "C:\Users\Administrator\Desktop\wzx" -s srv*D:\symbols11111*http://msdl.microsoft.com/download/symbols
+
+
+C:\Program Files\Windows Kits\10\Debuggers\x64
+
+
+symchk.exe  -r "D:\Users\Administrator\Desktop\wzx\"  -s  srv*D:\Users\Administrator\Desktop\wzx\sym

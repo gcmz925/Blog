@@ -29,6 +29,10 @@ livekd.exe -m -o 1.dmp -y C:\Symbols -k "C:\Program Files\Windows Kits\10\Debugg
 
 ```
 livekd.exe -m -o 1.dmp -y C:\ -k C:\
+
+
+
+livekd.exe -m -o "D:\wzx\1.dmp" -y "D:\wzx" -k "D:\wzx"
 ```
 
 

@@ -1,24 +1,102 @@
-HANDLE CreateFileA(
-  [in]           LPCSTR                lpFileName,
-  [in]           DWORD                 dwDesiredAccess,
-  [in]           DWORD                 dwShareMode,
-  [in, optional] LPSECURITY_ATTRIBUTES lpSecurityAttributes,
-  [in]           DWORD                 dwCreationDisposition,
-  [in]           DWORD                 dwFlagsAndAttributes,
-  [in, optional] HANDLE                hTemplateFile
+__kernel_entry NTSYSCALLAPI NTSTATUS NtCreateFile(
+  [out]          PHANDLE            FileHandle,
+  [in]           ACCESS_MASK        DesiredAccess,
+  [in]           POBJECT_ATTRIBUTES ObjectAttributes,
+  [out]          PIO_STATUS_BLOCK   IoStatusBlock,
+  [in, optional] PLARGE_INTEGER     AllocationSize,
+  [in]           ULONG              FileAttributes,
+  [in]           ULONG              ShareAccess,
+  [in]           ULONG              CreateDisposition,
+  [in]           ULONG              CreateOptions,
+  [in, optional] PVOID              EaBuffer,
+  [in]           ULONG              EaLength
 );
 
-[in] dwDesiredAccess 
-请求对文件或设备的访问权限，可以汇总为读取、写入或 0，以指示两者均未提供）。
-
-通用访问权限 （https://learn.microsoft.com/zh-cn/windows/win32/secauthz/generic-access-rights）
-
+[in] DesiredAccess
+指定一个 ACCESS_MASK 值，该值确定对 对象的请求访问权限。
+除了为所有类型的对象定义的 标准 访问权限外，调用方还可以指定以下任何 特定 访问权限：即特定于文件的权限。
 
 
+ACCESS_MASK标志			允许调用方执行此操作
+FILE_READ_DATA			从文件读取数据。
+FILE_READ_ATTRIBUTES	读取文件的属性。 有关详细信息，请参阅 FileAttributes 参数的说明。
+FILE_READ_EA			读取文件的扩展属性 (CA) 。 此标志与设备和中间驱动程序无关。
+FILE_WRITE_DATA			将数据写入文件。
+FILE_WRITE_ATTRIBUTES	写入文件的属性。 有关详细信息，请参阅 FileAttributes 参数的说明。
+FILE_WRITE_EA			更改文件的扩展属性 (CA) 。 此标志与设备和中间驱动程序无关。
+FILE_APPEND_DATA		将数据追加到文件。
+FILE_EXECUTE			使用系统分页 I/O 将数据从文件读取到内存中。 此标志与设备和中间驱动程序无关。
 
-[in] dwShareMode
-请求的文件或设备的共享模式，可以读取、写入、删除、所有这些或无（请参阅下表）。 对属性或扩展属性的访问请求不受此标志的影响。
+通用访问权限		映射到这些特定访问权限
+GENERIC_READ		STANDARD_RIGHTS_READ、FILE_READ_DATA、FILE_READ_ATTRIBUTES、FILE_READ_EA和 SYNCHRONIZE
+GENERIC_WRITE		STANDARD_RIGHTS_WRITE、FILE_WRITE_DATA、FILE_WRITE_ATTRIBUTES、FILE_WRITE_EA、FILE_APPEND_DATA 和 SYNCHRONIZE
+GENERIC_EXECUTE		STANDARD_RIGHTS_EXECUTE、FILE_EXECUTE、FILE_READ_ATTRIBUTES和 SYNCHRONIZE。 此值与设备和中间驱动程序无关。
+GENERIC_ALL			FILE_ALL_ACCESS
+
+例如，如果为文件对象指定GENERIC_READ，则例程会将此值映射到特定访问权限的FILE_GENERIC_READ位掩码。 在上表中，为 GENERIC_READ列出的特定访问权限对应于 (但不等于) FILE_GENERIC_READ位掩码中包含的访问标志。
+
+如果文件实际上是一个目录，则调用方还可以指定以下通用访问权限。
+
+DesiredAccess 			标志	允许调用方执行此操作
+FILE_LIST_DIRECTORY				列出目录中的文件。
+FILE_TRAVERSE					遍历目录，换言之，将目录包含在文件的路径中。
 
 
-[in] dwCreationDisposition
-对存在或不存在的文件或设备执行的操作。
+[out] IoStatusBlock
+指向 IO_STATUS_BLOCK 结构的指针，该结构接收最终完成状态和有关所请求操作的其他信息。 特别是， Information 成员接收以下值之一：
+FILE_CREATED
+FILE_OPENED
+FILE_OVERWRITTEN
+FILE_SUPERSEDED
+FILE_EXISTS
+FILE_DOES_NOT_EXIST
+
+
+[in] ShareAccess
+
+ShareAccess 标志	允许其他线程执行此操作
+FILE_SHARE_READ		读取文件
+FILE_SHARE_WRITE	写入文件
+FILE_SHARE_DELETE	删除文件
+
+设备和中间驱动程序通常将 ShareAccess 设置为零，这使调用方能够独占访问打开的文件。
+
+
+
+[in] CreateDisposition
+指定在文件存在或不存在时要执行的操作。 CreateDisposition 可以是下表中的值之一。
+
+CreateDisposition 值	如果文件存在，则执行操作		如果文件不存在，则执行操作
+FILE_SUPERSEDE			替换 文件。						创建文件。
+FILE_CREATE				返回错误。						创建文件。
+FILE_OPEN				打开 文件。						返回错误。
+FILE_OPEN_IF			打开 文件。						创建文件。
+FILE_OVERWRITE			打开文件并覆盖它。				返回错误。
+FILE_OVERWRITE_IF		打开文件并覆盖它。				创建文件。
+
+[in] CreateOptions
+指定驱动程序创建或打开文件时要应用的选项。 使用下表中的一个或多个标志。
+CreateOptions 标志						含义
+FILE_DELETE_ON_CLOSE (0x00001000)		文件的最后一个句柄传递给 NtClose 时，系统会删除该文件。 如果设置了此标志，则必须在 				
+										DesiredAccess 参数中设置 DELETE 标志。
+										
+										
+										
+1.摧毁源文件内容：
+FILE_DELETE_ON_CLOSE
+
+FILE_SUPERSEDE
+FILE_OVERWRITE
+FILE_OVERWRITE_IF
+
+2.创建文件
+FILE_CREATE
+
+3.删除文件权限
+DELETE
+
+4.写修改文件
+FILE_WRITE_DATA
+FILE_WRITE_ATTRIBUTES
+FILE_WRITE_EA
+FILE_APPEND_DATA
